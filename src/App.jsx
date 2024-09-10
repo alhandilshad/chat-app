@@ -4,6 +4,7 @@ import SignUp from './screens/signUp';
 import Login from './screens/login';
 import Home from './screens/home';
 import Users from './screens/users';
+import Profile from './screens/profile';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path='/login' element={<Login />}></Route>
         <Route path='/home' element={<Home />}></Route>
         <Route path='/users' element={<Users />}></Route>
+        <Route path='/profile' element={<Profile />}></Route>
       </Routes>
     </BrowserRouter>
   )

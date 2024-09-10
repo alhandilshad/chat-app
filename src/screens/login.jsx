@@ -12,7 +12,6 @@ const login = () => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((response) => {
-        localStorage.setItem('userEmail', JSON.stringify(response));
         navigate('/home');
       })
       .catch((error) => {

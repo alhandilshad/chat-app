@@ -12,7 +12,7 @@ const header = () => {
             <Link to={'/users'}>USERS</Link>
         </div>
         <div>
-            <Link className='text-xl'>Profile</Link>
+            <Link className='text-xl' to={'/profile'}>Profile</Link>
         </div>
     </div>
     </>

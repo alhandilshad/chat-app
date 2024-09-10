@@ -28,8 +28,7 @@ const signUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then( async (response) => {
         const uid = response.user.uid;
-        const userData = {name, email, uid}
-        localStorage.setItem('userEmail', JSON.stringify(response));
+        const userData = {name, email, uid, followers:[], following:[]};
         await setDoc(doc(db, 'users', uid), userData);
         navigate('/home');
       })
