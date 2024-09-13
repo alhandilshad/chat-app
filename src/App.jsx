@@ -5,6 +5,8 @@ import Login from './screens/login';
 import Home from './screens/home';
 import Users from './screens/users';
 import Profile from './screens/profile';
+import Messages from './screens/messages';
+import Chat from './screens/chat';
 
 const App = () => {
   return (
@@ -15,6 +17,8 @@ const App = () => {
         <Route path='/home' element={<Home />}></Route>
         <Route path='/users' element={<Users />}></Route>
         <Route path='/profile' element={<Profile />}></Route>
+        <Route path='/messages' element={<Messages />}></Route>
+        <Route path='/chat' element={<Chat />}></Route>
       </Routes>
     </BrowserRouter>
   )

@@ -8,7 +8,7 @@ const header = () => {
         <h1 className='text-xl font-semibold'>Chat-App</h1>
         <div className='flex justify-center items-center gap-10 text-[18px] font-semibold'>
             <Link to={'/home'}>HOME</Link>
-            <Link>MESSAGES</Link>
+            <Link to={'/messages'}>MESSAGES</Link>
             <Link to={'/users'}>USERS</Link>
         </div>
         <div>
