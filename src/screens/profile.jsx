@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/header";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 import { auth, db } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { FaPlusCircle } from "react-icons/fa";
 import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
 
-const profile = () => {
+const Profile = () => {
   const [userlist, setUserlist] = useState([]);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [modalList, setModalList] = useState([]);
-
+  const [postModal, setPostModal] = useState(false);
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -145,11 +146,77 @@ const profile = () => {
 
         {/* Additional profile info */}
         <div className="mt-6">
-          <button className="flex items-center gap-1 text-2xl font-semibold">Create Post <FaPlusCircle /></button>
+          <button className="flex items-center gap-1 text-2xl font-semibold" onClick={() => setPostModal(true)}>
+            Create Post <FaPlusCircle />
+          </button>
+          {postModal ? (
+            <>
+              <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+                <div className="relative w-auto my-6 mx-auto max-w-sm">
+                  <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                    {/*header*/}
+                    <div className="flex items-start justify-between gap-10 p-5 border-b border-solid border-blueGray-200 rounded-t">
+                      <h3 className="text-3xl font-semibold">Create Post</h3>
+                      <button
+                        className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                        onClick={() => setPostModal(false)}
+                      >
+                        x
+                      </button>
+                    </div>
+                    {/*body*/}
+                    <div className="relative p-6 flex-auto">
+                      <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
+                          Title
+                        </label>
+                        <input
+                          type="text"
+                          id="title"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                          placeholder="Enter post title"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+                          Description
+                        </label>
+                        <textarea
+                          id="description"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                          placeholder="Enter post description"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="imageURL">
+                          Image URL
+                        </label>
+                        <input
+                          type="text"
+                          id="imageURL"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                          placeholder="Enter image URL"
+                        />
+                      </div>
+                    </div>
+                    {/*footer*/}
+                    <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
+                      <button
+                        className="bg-blue-500 text-white font-bold px-6 py-2 rounded shadow hover:shadow-lg"
+                      >
+                        Create Post
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+            </>
+          ) : null}
         </div>
       </div>
     </>
   );
 };
 
-export default profile;
+export default Profile;

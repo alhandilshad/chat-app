@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
@@ -16,7 +16,7 @@ const Chat = () => {
   const [chatList, setChatList] = useState([]);
   const [currentUserId, setCurrentUserId] = useState("");
 
-  console.log(state);
+  const chatContainerRef = useRef(null);
   
 
   useEffect(() => {
@@ -50,6 +50,8 @@ const Chat = () => {
         console.log(sortList);
         
         setChatList(sortList);
+
+        scrollToBottom();
       });
 
       return () => {
@@ -66,9 +68,18 @@ const Chat = () => {
       [state.uid]: true,
       [currentUserId]: true,
       senderUid: currentUserId,
+      receiverUid: state.uid,
       timestamp: Date.now(),
     });
     setMessage("");
+
+    scrollToBottom();
+  };
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   return (
@@ -90,10 +101,10 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className={`pt-24 pb-20 px-10 h-[calc(100vh-140px)] bg-blue-50 overflow-y-auto`}>
+      <div className={`pt-24 pb-20 px-10 h-[calc(100vh-100px)] bg-blue-50 overflow-y-auto`} ref={chatContainerRef}>
         {chatList.map((item, index) => (
           <div key={index} className={`flex w-full ${item.senderUid == currentUserId ? 'justify-end' : 'justify-start'}`}>
-            <div className="border border-black shadow-md shadow-gray-300 bg-blue-50 mt-4 py-4 px-7">
+            <div className={`${item.senderUid == currentUserId ? 'shadow-md shadow-gray-400 bg-blue-400 text-white mt-4 py-4 px-7' : 'shadow-md shadow-gray-400 bg-white mt-4 py-4 px-7'}`}>
             <h1 className="text-xl">{item.message}</h1>
             <p className="text-[14px]">{moment(item.timestamp).startOf('seconds').fromNow()}</p>
             </div>

@@ -7,6 +7,7 @@ import Users from './screens/users';
 import Profile from './screens/profile';
 import Messages from './screens/messages';
 import Chat from './screens/chat';
+import Posts from './screens/posts';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path='/profile' element={<Profile />}></Route>
         <Route path='/messages' element={<Messages />}></Route>
         <Route path='/chat' element={<Chat />}></Route>
+        <Route path='/posts' element={<Posts />}></Route>
       </Routes>
     </BrowserRouter>
   )

@@ -10,6 +10,7 @@ const header = () => {
             <Link to={'/home'}>HOME</Link>
             <Link to={'/messages'}>MESSAGES</Link>
             <Link to={'/users'}>USERS</Link>
+            <Link to={'/posts'}>POSTS</Link>
         </div>
         <div>
             <Link className='text-xl' to={'/profile'}>Profile</Link>

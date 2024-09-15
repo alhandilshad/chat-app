@@ -12,6 +12,7 @@ import { auth, db } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
+import { useNavigate } from "react-router-dom";
 
 const Users = () => {
   const [userlist, setUserlist] = useState([]);
@@ -20,6 +21,8 @@ const Users = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [modalList, setModalList] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -172,9 +175,9 @@ const Users = () => {
                 currentUserData.following.includes(user.name) ? (
                   <button
                     className="block w-full bg-gray-500 text-white font-semibold py-2 px-4 rounded"
-                    disabled
+                    onClick={() => navigate('/chat', {state:user})}
                   >
-                    Following
+                    Message
                   </button>
                 ) : (
                   <button
