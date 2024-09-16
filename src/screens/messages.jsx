@@ -64,12 +64,12 @@ const messages = () => {
       <div className="h-auto pb-20 w-full bg-gray-100">
         <div className="flex flex-col justify-center items-center gap-5 pt-32">
         {userlist.filter((user) => user.email !== currentUserEmail).filter((user) => chatUser.some((chat) => (chat.receiverUid === user.uid && chat.senderUid === currentUserUid) || (chat.senderUid === user.uid && chat.receiverUid === currentUserUid))).map((title, index) => (
-            <div key={index} onClick={() => navigate('/chat', {state:title})} className="flex items-center justify-between px-8 border-2 border-blue-400 rounded-md py-3 bg-blue-100 w-[80%] cursor-pointer">
+            <div key={index} onClick={() => navigate('/chat', {state:title})} className="flex items-center justify-between px-8 border-2 border-blue-400 rounded-md py-2 bg-blue-100 w-[80%] cursor-pointer">
               <div className="flex items-center gap-3">
               <img
                 src={title.gender === 'Male' ? menImage : womenImage}
                 alt="Profile"
-                className="w-20 h-20 rounded-full border"
+                className="w-16 h-16 rounded-full border"
               />
               <h2 className="text-2xl font-semibold text-gray-800">{title.name}</h2>
               </div>

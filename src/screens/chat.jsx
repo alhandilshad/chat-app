@@ -5,16 +5,22 @@ import womenImage from "../assets/download.png";
 import { IoArrowBackSharp, IoSend } from "react-icons/io5";
 import { IoMdCall } from "react-icons/io";
 import { FaVideo } from "react-icons/fa";
-import { addDoc, collection, query, where, onSnapshot } from "firebase/firestore";
+import { BsEmojiSmile } from "react-icons/bs";
+import { RiCheckDoubleLine } from "react-icons/ri";
+import { MdDelete } from "react-icons/md";
+import { addDoc, collection, query, where, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { auth, db } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import moment from "moment";
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 
 const Chat = () => {
   const { state } = useLocation();
   const [message, setMessage] = useState("");
   const [chatList, setChatList] = useState([]);
   const [currentUserId, setCurrentUserId] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const chatContainerRef = useRef(null);
   
@@ -44,7 +50,7 @@ const Chat = () => {
       const messageUnsubscribe = onSnapshot(q, (docSnap) => {
         const list = [];
         docSnap.forEach((doc) => {
-          list.push(doc.data());
+          list.push({ id: doc.id, ...doc.data() });
         });
         const sortList = list.sort((a, b) => a.timestamp - b.timestamp);
         console.log(sortList);
@@ -61,7 +67,7 @@ const Chat = () => {
   }, [currentUserId, state?.uid]);
 
   const sendMessages = () => {
-    if (!message.trim()) return; // Prevent sending empty messages
+    if (!message.trim()) return;
 
     addDoc(collection(db, "chat"), {
       message,
@@ -76,10 +82,24 @@ const Chat = () => {
     scrollToBottom();
   };
 
+  const deleteMessage = async (item) => {
+    try {
+      const messageRef = doc(db, "chat", item.id);
+      await deleteDoc(messageRef);
+      console.log("Message deleted successfully");
+    } catch (error) {
+      console.error("Error deleting message: ", error);
+    }
+  };
+
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
+  };
+
+  const handleEmojiSelect = (emoji) => {
+    setMessage((prevMessage) => prevMessage + emoji.native);
   };
 
   return (
@@ -103,10 +123,14 @@ const Chat = () => {
 
       <div className={`pt-24 pb-20 px-10 h-[calc(100vh-100px)] bg-blue-50 overflow-y-auto`} ref={chatContainerRef}>
         {chatList.map((item, index) => (
-          <div key={index} className={`flex w-full ${item.senderUid == currentUserId ? 'justify-end' : 'justify-start'}`}>
+          <div key={index} className={`flex items-center gap-2 w-full ${item.senderUid == currentUserId ? 'justify-end' : 'justify-start'}`}>
+            <button type="button" onClick={() => deleteMessage(item)} className={`${item.senderUid == currentUserId ? 'block text-gray-500 text-xl' : 'hidden'}`}><MdDelete /></button>
             <div className={`${item.senderUid == currentUserId ? 'shadow-md shadow-gray-400 bg-blue-400 text-white mt-4 py-4 px-7' : 'shadow-md shadow-gray-400 bg-white mt-4 py-4 px-7'}`}>
-            <h1 className="text-xl">{item.message}</h1>
-            <p className="text-[14px]">{moment(item.timestamp).startOf('seconds').fromNow()}</p>
+              <h1>{item.message}</h1>
+              <div className="flex justify-between items-center gap-1">
+                <p className="text-[12px]">{moment(item.timestamp).startOf('seconds').fromNow()}</p>
+                <RiCheckDoubleLine className={`${item.receiverUid == currentUserId && item.senderUid == state.uid ? 'text-blue-500' : 'text-black'}`} />
+              </div>
             </div>
           </div>
         ))}
@@ -120,6 +144,15 @@ const Chat = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
+        <BsEmojiSmile 
+          className="text-2xl cursor-pointer ml-3" 
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
+        />
+        {showEmojiPicker && (
+          <div className="absolute bottom-16 right-16">
+            <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+          </div>
+        )}
         <button
           className="ml-3 p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           onClick={sendMessages}

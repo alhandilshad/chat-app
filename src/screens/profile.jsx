@@ -10,15 +10,20 @@ import womenImage from "../assets/download.png";
 const Profile = () => {
   const [userlist, setUserlist] = useState([]);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
+  const [currentUserId, setCurrentUserId] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [modalList, setModalList] = useState([]);
   const [postModal, setPostModal] = useState(false);
+  const [title, setTitle] = useState();
+  const [description, setDescription] = useState();
+  const [imageURL, setImageURL] = useState();
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUserEmail(user.email);
+        setCurrentUserId(user.uid);
       }
     });
     getUsers();
@@ -33,6 +38,26 @@ const Profile = () => {
     });
     setUserlist(list);
   };
+
+  const createPost = () => {
+    if (!title ||!description ||!imageURL) {
+      alert("Please fill all the fields.");
+      return;
+    }
+
+    addDoc(collection(db, "Posts"), {
+      title,
+      description,
+      imageURL,
+      userId: currentUserId,
+      timestamp: Date.now(),
+    })
+
+    setPostModal(false);
+    setTitle("");
+    setDescription("");
+    setImageURL("");
+  }
 
   return (
     <>
@@ -152,7 +177,7 @@ const Profile = () => {
           {postModal ? (
             <>
               <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-                <div className="relative w-auto my-6 mx-auto max-w-sm">
+                <div className="relative w-[50%] my-6 mx-auto max-w-sm">
                   <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                     {/*header*/}
                     <div className="flex items-start justify-between gap-10 p-5 border-b border-solid border-blueGray-200 rounded-t">
@@ -175,6 +200,8 @@ const Profile = () => {
                           id="title"
                           className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                           placeholder="Enter post title"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
                         />
                       </div>
                       <div className="mb-4">
@@ -185,6 +212,8 @@ const Profile = () => {
                           id="description"
                           className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                           placeholder="Enter post description"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
                         />
                       </div>
                       <div className="mb-4">
@@ -196,6 +225,8 @@ const Profile = () => {
                           id="imageURL"
                           className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                           placeholder="Enter image URL"
+                          value={imageURL}
+                          onChange={(e) => setImageURL(e.target.value)}
                         />
                       </div>
                     </div>
@@ -203,6 +234,7 @@ const Profile = () => {
                     <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
                       <button
                         className="bg-blue-500 text-white font-bold px-6 py-2 rounded shadow hover:shadow-lg"
+                        onClick={createPost}
                       >
                         Create Post
                       </button>
