@@ -53,8 +53,6 @@ const Chat = () => {
           list.push({ id: doc.id, ...doc.data() });
         });
         const sortList = list.sort((a, b) => a.timestamp - b.timestamp);
-        console.log(sortList);
-        
         setChatList(sortList);
 
         scrollToBottom();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/header";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, deleteDoc, onSnapshot, query, where, doc } from "firebase/firestore";
 import { db, auth } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import moment from "moment";
@@ -41,6 +41,18 @@ const posts = () => {
       messageUnsubscribe();
     };
   }, [currentUserId]);
+
+  const deletePost = async (body) => {
+    try {
+      const postsRef = doc(db, "Posts", body.id);
+      await deleteDoc(postsRef);
+      console.log("Post deleted successfully");
+    } catch (error) {
+      console.error("Error deleting Post: ", error);
+    }
+    setmodel(false);
+  }
+
   return (
     <>
       <Header />
@@ -52,7 +64,7 @@ const posts = () => {
           <>
             <div
               key={index}
-              className="shadow-md shadow-gray-500 w-[23%] border border-gray-300 p-6 cursor-pointer"
+              className="shadow-md shadow-gray-500 w-[23%] border border-gray-300 p-6 cursor-pointer hover:shadow-lg hover:shadow-gray-500 duration-300"
               onClick={() => {
                 setmodel(true);
                 setmodelBody(post);
@@ -62,7 +74,7 @@ const posts = () => {
                 {moment(post.timestamp).startOf("seconds").fromNow()}
               </p>
               <h1 className="text-2xl font-semibold pb-3">{post.title}</h1>
-              <img src={post.imageURL} className="w-full"></img>
+              <img src={post.imageURL} className="w-full h-[140px]"></img>
             </div>
             {model ? (
               <>
@@ -87,6 +99,7 @@ const posts = () => {
                           <h1 className="pt-2 text-xl font-bold">{modelBody.title}</h1>
                           <p className="pt-2">{modelBody.description}</p>
                         </div>
+                        <button className="bg-red-500 mt-3 text-white px-6 py-2 rounded-md hover:bg-red-600 duration-300" onClick={() => deletePost(modelBody)}>Delete Post</button>
                       </div>
                     </div>
                   </div>

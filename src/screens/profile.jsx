@@ -49,6 +49,8 @@ const Profile = () => {
       title,
       description,
       imageURL,
+      posterName:  userlist.filter((user) => user.email === currentUserEmail)[0].name,
+      posterGender:  userlist.filter((user) => user.email === currentUserEmail)[0].gender,
       userId: currentUserId,
       timestamp: Date.now(),
     })
