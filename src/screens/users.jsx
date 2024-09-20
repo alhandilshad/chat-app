@@ -127,7 +127,7 @@ const Users = () => {
               >
                 <img
                   className="w-20 h-20 rounded-full mx-auto mb-4"
-                  src={user.gender === "Male" ? menImage : womenImage}
+                  src={user.profileImg ? user.profileImg : user.gender === "Male" ? menImage : womenImage}
                   alt="Profile"
                 />
                 <h2 className="text-xl font-semibold text-center mb-2">

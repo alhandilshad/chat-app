@@ -67,7 +67,7 @@ const messages = () => {
             <div key={index} onClick={() => navigate('/chat', {state:title})} className="flex items-center justify-between px-8 border-2 border-blue-400 rounded-md py-2 bg-blue-100 w-[80%] cursor-pointer">
               <div className="flex items-center gap-3">
               <img
-                src={title.gender === 'Male' ? menImage : womenImage}
+                src={title.profileImg ? title.profileImg : title.gender === 'Male' ? menImage : womenImage}
                 alt="Profile"
                 className="w-16 h-16 rounded-full border"
               />

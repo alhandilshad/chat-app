@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/header";
-import { collection, getDocs, addDoc } from "firebase/firestore";
-import { auth, db } from "../utils/firebaseConfig";
+import { collection, getDocs, addDoc, doc, updateDoc } from "firebase/firestore";
+import { auth, db, storage } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { FaPlusCircle } from "react-icons/fa";
 import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const Profile = () => {
   const [userlist, setUserlist] = useState([]);
@@ -18,6 +19,7 @@ const Profile = () => {
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [imageURL, setImageURL] = useState();
+  const [profileImg, setprofileImg] = useState(menImage);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -51,7 +53,9 @@ const Profile = () => {
       imageURL,
       posterName:  userlist.filter((user) => user.email === currentUserEmail)[0].name,
       posterGender:  userlist.filter((user) => user.email === currentUserEmail)[0].gender,
+      posterProfile: userlist.filter((user) => user.email === currentUserEmail)[0].profileImg,
       userId: currentUserId,
+      likes: [],
       timestamp: Date.now(),
     })
 
@@ -59,6 +63,25 @@ const Profile = () => {
     setTitle("");
     setDescription("");
     setImageURL("");
+  }
+
+  const handleImageUpload = async (e) => {
+    let url = URL.createObjectURL(e.target.files[0]);
+    setprofileImg(url);
+    const storageRef = ref(storage, `profileImages/${currentUserId}/dp`);
+
+  try {
+    await uploadBytes(storageRef, e.target.files[0]);
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log("Image uploaded! URL:", downloadURL);
+
+    setprofileImg(downloadURL);
+
+    const userRef = doc(db, "users", currentUserId);
+    await updateDoc(userRef, { profileImg: downloadURL });
+  } catch (error) {
+    console.error("Error uploading image:", error);
+  }
   }
 
   return (
@@ -70,11 +93,14 @@ const Profile = () => {
           .map((user, index) => (
             <>
               <div key={index} className="flex items-center space-x-4">
-                <img
-                  src={user.gender === "Male" ? menImage : womenImage}
-                  alt="Profile"
-                  className="w-24 h-24 rounded-full border"
-                />
+                <label htmlFor="imgUpload">
+                  <img
+                    src={profileImg}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full border"
+                  />
+                  <input type="file" id="imgUpload" className="hidden" onChange={handleImageUpload} />
+                </label>
                 <div>
                   <h2 className="text-xl font-semibold">{user.name}</h2>
                   <p className="text-gray-600">{user.email}</p>
