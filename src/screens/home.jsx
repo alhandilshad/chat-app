@@ -5,9 +5,11 @@ import { db } from '../utils/firebaseConfig';
 import moment from 'moment';
 import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
+import Heart from "react-heart"
 
 const home = () => {
   const [posts, setPosts] = useState([]);
+  const [active, setActive] = useState(false)
   useEffect(() => {
     const q = query(
       collection(db, "Posts"),
@@ -46,6 +48,9 @@ const home = () => {
             <img src={post.imageURL} className='w-full' />
           </div>
           <div>
+          <div style={{ width: "25px" }}>
+			      <Heart isActive={active} onClick={() => setActive(!active)}/>
+		      </div>
             <h1 className='text-xl font-semibold'>{post.title}</h1>
             <p><span className='text-xl font-semibold pr-2'>{post.posterName}</span> {post.description}</p>
           </div>

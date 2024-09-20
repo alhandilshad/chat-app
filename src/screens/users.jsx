@@ -123,17 +123,17 @@ const Users = () => {
             <>
               <div
                 key={index}
-                className="bg-white w-[22%] shadow-md rounded-lg p-6"
+                className="bg-white w-[17%] h-[45vh] shadow-md rounded-lg p-5"
               >
                 <img
-                  className="w-24 h-24 rounded-full mx-auto mb-4"
+                  className="w-20 h-20 rounded-full mx-auto mb-4"
                   src={user.gender === "Male" ? menImage : womenImage}
                   alt="Profile"
                 />
                 <h2 className="text-xl font-semibold text-center mb-2">
                   {user.name}
                 </h2>
-                <div className="mt-4 mb-4 flex justify-between px-7 w-full">
+                <div className="mt-4 mb-4 flex justify-between w-full">
                   <div className="flex flex-col justify-center items-center">
                     <button
                       type="button"
