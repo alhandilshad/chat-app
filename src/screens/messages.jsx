@@ -71,7 +71,10 @@ const messages = () => {
                 alt="Profile"
                 className="w-16 h-16 rounded-full border"
               />
-              <h2 className="text-2xl font-semibold text-gray-800">{title.name}</h2>
+              <div>
+              <h2 className="text-2xl font-semibold text-gray-800">{title.userName !== '' ? title.userName : title.name}</h2>
+              <h2 className="font-semibold text-gray-600">{title.name}</h2>
+              </div>
               </div>
               <div>
                 <h1 className="text-md font-semibold">Message</h1>

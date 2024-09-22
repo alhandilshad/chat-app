@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "../components/header";
 import {
   collection,
@@ -31,6 +31,13 @@ const Profile = () => {
   const [localProfileImg, setlocalProfileImg] = useState(null);
   const [currentUser, setcurrentUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [editModal, seteditModal] = useState(false);
+
+  const fileInputRef = useRef(null);
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click(); // Programmatically click the file input
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -94,6 +101,7 @@ const Profile = () => {
       description,
       imageURL,
       posterName: currentUser.name,
+      posterUserName: currentUser.userName,
       posterGender: currentUser.gender,
       posterProfile: currentUser.profileImg,
       userId: currentUserId,
@@ -131,35 +139,129 @@ const Profile = () => {
       <Header />
       <div className="pt-24 flex flex-col justify-center items-center">
         <div className="flex justify-center items-center gap-14">
-          <label htmlFor="imgUpload">
-            <img
+        <img
               src={
-                localProfileImg
-                  ? localProfileImg
-                  : profileImg
+                 profileImg
                   ? profileImg
                   : currentUser?.gender === "Male"
                   ? menImage
                   : womenImage
               }
               alt="Profile"
-              className="w-36 h-36 rounded-full border"
+              className="w-40 h-40 rounded-full border"
             />
-            <input
-              type="file"
-              id="imgUpload"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
-          </label>
           <div>
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-semibold">{currentUser?.name}</h2>
+              <div className="flex items-center gap-5">
+                <h2 className="text-[28px] font-semibold">{currentUser?.name}</h2>
                 <p className="text-gray-600">{currentUser?.email}</p>
-                <button className="px-4 py-1 bg-gray-300 rounded-md hover:bg-gray-500 hover:text-white duration-300">
+                <button
+                  onClick={() => seteditModal(true)}
+                  className="px-4 py-1 bg-gray-300 rounded-md hover:bg-gray-500 hover:text-white duration-300"
+                >
                   Edit Profile
                 </button>
+                {editModal ? (
+                  <>
+                    <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+                      <div className="relative w-[50%] my-6 mx-auto max-w-sm">
+                        <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                          {/*header*/}
+                          <div className="flex items-start justify-between gap-10 p-5 border-b border-solid border-blueGray-200 rounded-t">
+                            <h3 className="text-3xl font-semibold">
+                              Edit Profile
+                            </h3>
+                            <button
+                              className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                              onClick={() => seteditModal(false)}
+                            >
+                              x
+                            </button>
+                          </div>
+                          {/*body*/}
+                          <div className="relative p-6 flex-auto">
+                            <label htmlFor="imgUpload" className="flex items-center justify-between gap-4 mb-6">
+                              <img
+                                src={
+                                  localProfileImg
+                                    ? localProfileImg
+                                    : profileImg
+                                    ? profileImg
+                                    : currentUser?.gender === "Male"
+                                    ? menImage
+                                    : womenImage
+                                }
+                                alt="Profile"
+                                className="w-20 h-20 rounded-full border border-gray-300 object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleButtonClick}
+                                className="bg-blue-500 text-white px-3 py-1 rounded-lg shadow-md hover:bg-blue-600 transition"
+                              >
+                                Change Photo
+                              </button>
+                              <input
+                                type="file"
+                                id="imgUpload"
+                                ref={fileInputRef}
+                                onChange={handleImageUpload}
+                                className="hidden"
+                              />
+                            </label>
+                            <div className="flex flex-col gap-5">
+                              <div>
+                              <label className="text-gray-700 font-semibold">Change Username</label>
+                              <input
+                                type="text"
+                                placeholder="Name"
+                                value={currentUser?.userName}
+                                onChange={(e) =>
+                                  setcurrentUser({
+                                   ...currentUser,
+                                    userName: e.target.value,
+                                  })  
+                                }
+                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none mt-2"
+                              />
+                              </div>
+                              <div>
+                              <label className="text-gray-700 font-semibold">Add Bio</label>
+                              <textarea
+                                placeholder="Bio"
+                                value={currentUser?.bio}
+                                onChange={(e) => setcurrentUser({
+                                  ...currentUser,
+                                  bio: e.target.value,
+                                })}
+                                className="w-full border border-gray-300 rounded-md p-2 mt-2 h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                              />
+                              </div>
+                            </div>
+                            <div className="flex gap-4 items-center justify-end">
+                              <button
+                                type="button"
+                                className="px-4 py-1 mt-4 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 transition"
+                                onClick={() => {
+                                  updateDoc(
+                                    doc(db, "users", currentUserId),
+                                    {
+                                     ...currentUser,
+                                    }
+                                  );
+                                  seteditModal(false);
+                                }}
+                              >
+                                Save Changes
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+                  </>
+                ) : null}
               </div>
               <div className="flex items-center gap-6">
                 <h1 className="text-lg font-medium">{posts.length} Posts</h1>
@@ -205,10 +307,8 @@ const Profile = () => {
                 </div>
               </div>
               <div>
-              <h1 className="font-semibold">{currentUser?.name}</h1>
-              <h1>
-                {currentUser?.gender === "Male" ? "I am a boy" : "I am a girl"}
-              </h1>
+                <h1 className="font-semibold text-[18px]">{currentUser?.userName !== '' ? currentUser?.userName : currentUser?.name}</h1>
+                <h1 className="w-72 tracking-tighter leading-[21px]">{currentUser?.bio !== '' ? currentUser?.bio : ''}</h1>
               </div>
             </div>
           </div>

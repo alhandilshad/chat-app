@@ -35,7 +35,7 @@ const signUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (response) => {
         const uid = response.user.uid;
-        const userData = { name, email, uid, gender, followers: [], following: [] };
+        const userData = { name, email, uid, gender, followers: [], following: [], bio: '', userName: '' };
         await setDoc(doc(db, "users", uid), userData);
         navigate("/home");
       })

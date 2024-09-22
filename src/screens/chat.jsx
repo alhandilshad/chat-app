@@ -111,7 +111,10 @@ const Chat = () => {
             src={state?.profileImg ? state?.profileImg : state?.gender === "Male" ? menImage : womenImage}
             className="h-16 w-16 rounded-full"
           />
-          <h1 className="text-2xl font-semibold">{state?.name}</h1>
+          <div>
+            <h1 className="text-2xl font-semibold">{state?.userName !== '' ? state?.userName : state?.name}</h1>
+            <h1 className="font-semibold">{state?.name}</h1>
+          </div>
         </div>
         <div className="flex items-center text-2xl gap-5">
           <IoMdCall />

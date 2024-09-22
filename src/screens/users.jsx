@@ -116,15 +116,18 @@ const Users = () => {
             <>
               <div
                 key={index}
-                className="bg-white w-[17%] h-[35vh] shadow-md rounded-lg p-5"
+                className="bg-white w-[17%] h-[37vh] shadow-md rounded-lg p-5"
               >
                 <img
-                  className="w-20 h-20 rounded-full mx-auto mb-4"
+                  className="w-20 h-20 rounded-full mx-auto mb-2"
                   src={user.profileImg ? user.profileImg : user.gender === "Male" ? menImage : womenImage}
                   alt="Profile"
                 />
-                <h2 className="text-xl font-semibold text-center mb-2">
+                <h2 className="text-xl font-semibold text-center">
                   {user.name}
+                </h2>
+                <h2 className="font-semibold text-gray-600 text-center">
+                  {user.userName !== '' ? user.userName : user.name}
                 </h2>
                 {currentUserData &&
                 currentUserData.following.includes(user.name) ? (
