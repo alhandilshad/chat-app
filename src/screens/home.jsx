@@ -75,7 +75,7 @@ const home = () => {
         <div key={index} className='flex flex-col gap-3 w-[35%]'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
-            <img src={post.posterGender === 'Male' ? menImage : womenImage} className='h-12 w-12 rounded-full' />
+            <img src={post.posterProfile ? post.posterProfile : post.posterGender === 'Male' ? menImage : womenImage} className='h-12 w-12 rounded-full' />
             <h1 className='text-xl font-semibold'>{post.posterName}</h1>
             </div>
             <p className='text-gray-500 text-[14px]'>{moment(post.timestamp).startOf("seconds").fromNow()}</p>

@@ -108,7 +108,7 @@ const Chat = () => {
         </Link>
         <div className="flex items-center gap-5">
           <img
-            src={state?.gender === "Male" ? menImage : womenImage}
+            src={state?.profileImg ? state?.profileImg : state?.gender === "Male" ? menImage : womenImage}
             className="h-16 w-16 rounded-full"
           />
           <h1 className="text-2xl font-semibold">{state?.name}</h1>

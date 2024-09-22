@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/header";
-import { collection, getDocs, addDoc, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { auth, db, storage } from "../utils/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { FaPlusCircle } from "react-icons/fa";
@@ -10,27 +19,60 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const Profile = () => {
   const [userlist, setUserlist] = useState([]);
-  const [currentUserEmail, setCurrentUserEmail] = useState("");
-  const [currentUserId, setCurrentUserId] = useState('');
+  const [currentUserId, setCurrentUserId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [modalList, setModalList] = useState([]);
   const [postModal, setPostModal] = useState(false);
-  const [title, setTitle] = useState();
-  const [description, setDescription] = useState();
-  const [imageURL, setImageURL] = useState();
-  const [profileImg, setprofileImg] = useState(menImage);
-  
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageURL, setImageURL] = useState("");
+  const [profileImg, setprofileImg] = useState(null);
+  const [localProfileImg, setlocalProfileImg] = useState(null);
+  const [currentUser, setcurrentUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setCurrentUserEmail(user.email);
         setCurrentUserId(user.uid);
+
+        const userRef = doc(db, "users", user.uid);
+        const unsub = onSnapshot(userRef, (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            const userData = docSnapshot.data();
+            setcurrentUser(userData);
+            console.log(userData);
+
+            setprofileImg(userData.profileImg); // Real-time update for profile image
+          }
+        });
+
+        return () => unsub();
       }
     });
     getUsers();
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "Posts"),
+      where("userId", "==", currentUserId)
+    );
+
+    const messageUnsubscribe = onSnapshot(q, (docSnap) => {
+      const list = [];
+      docSnap.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setPosts(list);
+    });
+
+    return () => {
+      messageUnsubscribe();
+    };
+  }, [currentUserId]);
 
   const getUsers = async () => {
     const list = [];
@@ -42,7 +84,7 @@ const Profile = () => {
   };
 
   const createPost = () => {
-    if (!title ||!description ||!imageURL) {
+    if (!title || !description || !imageURL) {
       alert("Please fill all the fields.");
       return;
     }
@@ -51,76 +93,88 @@ const Profile = () => {
       title,
       description,
       imageURL,
-      posterName:  userlist.filter((user) => user.email === currentUserEmail)[0].name,
-      posterGender:  userlist.filter((user) => user.email === currentUserEmail)[0].gender,
-      posterProfile: userlist.filter((user) => user.email === currentUserEmail)[0].profileImg,
+      posterName: currentUser.name,
+      posterGender: currentUser.gender,
+      posterProfile: currentUser.profileImg,
       userId: currentUserId,
       likes: [],
       timestamp: Date.now(),
-    })
+    });
 
     setPostModal(false);
     setTitle("");
     setDescription("");
     setImageURL("");
-  }
+  };
 
   const handleImageUpload = async (e) => {
     let url = URL.createObjectURL(e.target.files[0]);
-    setprofileImg(url);
+    setlocalProfileImg(url);
     const storageRef = ref(storage, `profileImages/${currentUserId}/dp`);
 
-  try {
-    await uploadBytes(storageRef, e.target.files[0]);
-    const downloadURL = await getDownloadURL(storageRef);
-    console.log("Image uploaded! URL:", downloadURL);
+    try {
+      await uploadBytes(storageRef, e.target.files[0]);
+      const downloadURL = await getDownloadURL(storageRef);
+      console.log("Image uploaded! URL:", downloadURL);
 
-    setprofileImg(downloadURL);
+      setprofileImg(downloadURL);
 
-    const userRef = doc(db, "users", currentUserId);
-    await updateDoc(userRef, { profileImg: downloadURL });
-  } catch (error) {
-    console.error("Error uploading image:", error);
-  }
-  }
+      const userRef = doc(db, "users", currentUserId);
+      await updateDoc(userRef, { profileImg: downloadURL });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
 
   return (
     <>
       <Header />
-      <div className="container mx-auto p-4 pt-24">
-        {userlist
-          .filter((user) => user.email === currentUserEmail)
-          .map((user, index) => (
-            <>
-              <div key={index} className="flex items-center space-x-4">
-                <label htmlFor="imgUpload">
-                  <img
-                    src={profileImg}
-                    alt="Profile"
-                    className="w-24 h-24 rounded-full border"
-                  />
-                  <input type="file" id="imgUpload" className="hidden" onChange={handleImageUpload} />
-                </label>
-                <div>
-                  <h2 className="text-xl font-semibold">{user.name}</h2>
-                  <p className="text-gray-600">{user.email}</p>
-                </div>
+      <div className="pt-24 flex flex-col justify-center items-center">
+        <div className="flex justify-center items-center gap-14">
+          <label htmlFor="imgUpload">
+            <img
+              src={
+                localProfileImg
+                  ? localProfileImg
+                  : profileImg
+                  ? profileImg
+                  : currentUser?.gender === "Male"
+                  ? menImage
+                  : womenImage
+              }
+              alt="Profile"
+              className="w-36 h-36 rounded-full border"
+            />
+            <input
+              type="file"
+              id="imgUpload"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+          </label>
+          <div>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-semibold">{currentUser?.name}</h2>
+                <p className="text-gray-600">{currentUser?.email}</p>
+                <button className="px-4 py-1 bg-gray-300 rounded-md hover:bg-gray-500 hover:text-white duration-300">
+                  Edit Profile
+                </button>
               </div>
-
-              <div className="mt-6">
-                <h3 className="text-lg font-medium">Bio</h3>
-                <p>{user.gender === "Male" ? "I am a boy" : "I am a girl"}</p>
-              </div>
-
-              <div className="mt-4 flex space-x-6">
-                <div className="flex flex-col justify-center items-center">
+              <div className="flex items-center gap-6">
+                <h1 className="text-lg font-medium">{posts.length} Posts</h1>
+                <div className="flex items-center gap-1">
+                  <p className="text-lg font-medium">
+                    {currentUser?.followers?.length}
+                  </p>
                   <button
                     type="button"
                     className="text-lg font-medium"
                     onClick={() => {
                       setModalType("followers");
-                      const followersList = user.followers.map((followerName) =>
-                        userlist.find((u) => u.name === followerName)
+                      const followersList = currentUser?.followers?.map(
+                        (followerName) =>
+                          userlist.find((u) => u.name === followerName)
                       );
                       setModalList(followersList);
                       setShowModal(true);
@@ -128,15 +182,17 @@ const Profile = () => {
                   >
                     Followers
                   </button>
-                  <p>{user.followers.length}</p>
                 </div>
-                <div className="flex flex-col justify-center items-center">
+                <div className="flex items-center gap-1">
+                  <p className="text-lg font-medium">
+                    {currentUser?.following?.length}
+                  </p>
                   <button
                     type="button"
                     className="text-lg font-medium"
                     onClick={() => {
                       setModalType("following");
-                      const followingList = user.following.map(
+                      const followingList = currentUser?.following?.map(
                         (followingName) =>
                           userlist.find((u) => u.name === followingName)
                       );
@@ -146,60 +202,67 @@ const Profile = () => {
                   >
                     Following
                   </button>
-                  <p>{user.following.length}</p>
                 </div>
               </div>
-              {showModal ? (
-                <>
-                  <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-                    <div className="relative w-auto my-6 mx-auto max-w-sm">
-                      <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                        {/*header*/}
-                        <div className="flex items-start justify-between gap-10 p-5 border-b border-solid border-blueGray-200 rounded-t">
-                          <h3 className="text-3xl font-semibold">
-                            {modalType === "followers"
-                              ? "Followers"
-                              : "Following"}
-                          </h3>
-                          <button
-                            className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                            onClick={() => setShowModal(false)}
-                          >
-                            x
-                          </button>
-                        </div>
-                        {/*body*/}
-                        <div className="relative p-6 flex-auto">
-                          {modalList.length > 0 ? (
-                            <ul className="list-none">
-                              {modalList.map((user, index) => (
-                                <div
-                                  key={index}
-                                  className="mb-2 flex items-center justify-between"
-                                >
-                                  <li className="text-blue-500 text-xl">
-                                    {user.name}
-                                  </li>
-                                  <p>{user.gender}</p>
-                                </div>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p>No {modalType} yet.</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+              <div>
+              <h1 className="font-semibold">{currentUser?.name}</h1>
+              <h1>
+                {currentUser?.gender === "Male" ? "I am a boy" : "I am a girl"}
+              </h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        {showModal ? (
+          <>
+            <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+              <div className="relative w-auto my-6 mx-auto max-w-sm">
+                <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                  {/*header*/}
+                  <div className="flex items-start justify-between gap-10 p-5 border-b border-solid border-blueGray-200 rounded-t">
+                    <h3 className="text-3xl font-semibold">
+                      {modalType === "followers" ? "Followers" : "Following"}
+                    </h3>
+                    <button
+                      className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                      onClick={() => setShowModal(false)}
+                    >
+                      x
+                    </button>
                   </div>
-                  <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
-                </>
-              ) : null}
-            </>
-          ))}
+                  {/*body*/}
+                  <div className="relative p-6 flex-auto">
+                    {modalList.length > 0 ? (
+                      <ul className="list-none">
+                        {modalList.map((user, index) => (
+                          <div
+                            key={index}
+                            className="mb-2 flex items-center justify-between"
+                          >
+                            <li className="text-blue-500 text-xl">
+                              {user.name}
+                            </li>
+                            <p>{user.gender}</p>
+                          </div>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No {modalType} yet.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+          </>
+        ) : null}
 
         {/* Additional profile info */}
         <div className="mt-6">
-          <button className="flex items-center gap-1 text-2xl font-semibold" onClick={() => setPostModal(true)}>
+          <button
+            className="flex items-center gap-1 text-2xl font-semibold"
+            onClick={() => setPostModal(true)}
+          >
             Create Post <FaPlusCircle />
           </button>
           {postModal ? (
@@ -220,7 +283,10 @@ const Profile = () => {
                     {/*body*/}
                     <div className="relative p-6 flex-auto">
                       <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
+                        <label
+                          className="block text-gray-700 text-sm font-bold mb-2"
+                          htmlFor="title"
+                        >
                           Title
                         </label>
                         <input
@@ -233,7 +299,10 @@ const Profile = () => {
                         />
                       </div>
                       <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+                        <label
+                          className="block text-gray-700 text-sm font-bold mb-2"
+                          htmlFor="description"
+                        >
                           Description
                         </label>
                         <textarea
@@ -245,7 +314,10 @@ const Profile = () => {
                         />
                       </div>
                       <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="imageURL">
+                        <label
+                          className="block text-gray-700 text-sm font-bold mb-2"
+                          htmlFor="imageURL"
+                        >
                           Image URL
                         </label>
                         <input
