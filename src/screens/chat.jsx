@@ -122,11 +122,11 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className={`pt-24 pb-20 px-10 h-[calc(100vh-100px)] bg-blue-50 overflow-y-auto`} ref={chatContainerRef}>
+      <div className={`pt-24 pb-20 px-10 h-[calc(100vh-100px)] overflow-y-auto bg-chatBack bg-cover bg-center bg-no-repeat bg-fixed`} ref={chatContainerRef}>
         {chatList.map((item, index) => (
           <div key={index} className={`flex items-center gap-2 w-full ${item.senderUid == currentUserId ? 'justify-end' : 'justify-start'}`}>
-            <button type="button" onClick={() => deleteMessage(item)} className={`${item.senderUid == currentUserId ? 'block text-gray-500 text-xl' : 'hidden'}`}><MdDelete /></button>
-            <div className={`${item.senderUid == currentUserId ? 'shadow-md shadow-gray-400 bg-blue-400 text-white mt-4 py-4 px-7' : 'shadow-md shadow-gray-400 bg-white mt-4 py-4 px-7'}`}>
+            <button type="button" onClick={() => deleteMessage(item)} className={`${item.senderUid == currentUserId ? 'block text-gray-200 text-xl' : 'hidden'}`}><MdDelete /></button>
+            <div className={`${item.senderUid == currentUserId ? 'bg-blue-500 text-white mt-4 py-4 px-7' : 'bg-white mt-4 py-4 px-7'}`}>
               <h1>{item.message}</h1>
               <div className="flex justify-between items-center gap-1">
                 <p className="text-[12px]">{moment(item.timestamp).startOf('seconds').fromNow()}</p>

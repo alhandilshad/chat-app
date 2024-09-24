@@ -110,13 +110,17 @@ const Users = () => {
     <>
       <Header />
       <div className="pt-32 pb-20 bg-blue-400 h-auto flex flex-wrap gap-5 justify-center items-center">
+      <div className="pt-20">
+        <input type="text" placeholder="Search user by name" />
+      </div>
         {userlist
           .filter((user) => user.email !== currentUserEmail)
           .map((user, index) => (
             <>
               <div
                 key={index}
-                className="bg-white w-[17%] h-[37vh] shadow-md rounded-lg p-5"
+                className="bg-white w-[17%] h-[37vh] shadow-md rounded-lg p-5 cursor-pointer"
+                onClick={() => navigate('/otherProfile', {state: user})}
               >
                 <img
                   className="w-20 h-20 rounded-full mx-auto mb-2"

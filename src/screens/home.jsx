@@ -84,7 +84,7 @@ const home = () => {
             <p className='text-gray-500 text-[14px]'>{moment(post.timestamp).startOf("seconds").fromNow()}</p>
           </div>
           <div>
-            <img src={post.imageURL} className='w-full' onDoubleClick={() => toggleLike(post.id, post.likes)} />
+            <img src={post.imageURL} className='w-full h-72' onDoubleClick={() => toggleLike(post.id, post.likes)} />
           </div>
           <div>
           <div style={{ width: "25px" }}>
