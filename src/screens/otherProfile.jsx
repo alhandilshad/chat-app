@@ -4,6 +4,7 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
   updateDoc,
   doc,
   onSnapshot,
@@ -160,6 +161,7 @@ const otherProfile = () => {
                   </button>
                 </div>
               </div>
+              <div></div>
               <div>
                 <h1 className="font-semibold text-[18px]">
                   {state?.userName !== "" ? state?.userName : state?.name}

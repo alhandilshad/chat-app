@@ -134,14 +134,20 @@ const Users = () => {
                 currentUserData.following.includes(user.name) ? (
                   <button
                     className="block w-full bg-gray-500 text-white font-semibold py-2 px-4 rounded mt-5"
-                    onClick={() => navigate('/chat', {state:user})}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      navigate('/chat', {state:user})
+                    }}
                   >
                     Message
                   </button>
                 ) : (
                   <button
                     className="block w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded mt-5 hover:bg-blue-600"
-                    onClick={() => handleFollow(user.name)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleFollow(user.name)
+                    }}
                   >
                     Follow
                   </button>

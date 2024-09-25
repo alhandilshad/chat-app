@@ -140,6 +140,7 @@ const Profile = () => {
       console.error("Error uploading image:", error);
     }
   };
+  
 
   return (
     <>
@@ -148,11 +149,7 @@ const Profile = () => {
         <div className="flex justify-center items-center gap-14">
           <img
             src={
-              profileImg
-                ? profileImg
-                : currentUser?.gender === "Male"
-                ? menImage
-                : womenImage
+              localProfileImg ? localProfileImg : profileImg ? profileImg : currentUser?.gender === "Male"? menImage : womenImage
             }
             alt="Profile"
             className="w-44 h-44 rounded-full border"
