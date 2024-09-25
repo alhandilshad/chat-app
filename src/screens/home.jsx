@@ -75,9 +75,9 @@ const home = () => {
         <div key={index} className='flex flex-col gap-3 w-[35%]'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
-            <img src={post.posterProfile ? post.posterProfile : post.posterGender === 'Male' ? menImage : womenImage} className='h-12 w-12 rounded-full' />
+            <img src={post.posterProfile !== '' ? post.posterProfile : post.posterGender === 'Male' ? menImage : womenImage} className='h-12 w-12 rounded-full' />
             <div>
-            <h1 className='text-xl font-semibold'>{post.posterUserName ? post.posterUserName : post.posterName}</h1>
+            <h1 className='text-xl font-semibold'>{post.posterUserName !== '' ? post.posterUserName : post.posterName}</h1>
             <h1 className='font-semibold text-gray-600'>{post.posterName}</h1>
             </div>
             </div>

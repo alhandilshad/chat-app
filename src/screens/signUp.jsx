@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, db } from "../utils/firebaseConfig";
@@ -11,6 +11,15 @@ const signUp = () => {
   const [gender, setGender] = useState("");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate('/home');
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleSignup = async () => {
     const dbSnap = await getDocs(collection(db, "users"));

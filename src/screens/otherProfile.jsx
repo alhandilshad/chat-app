@@ -4,6 +4,7 @@ import {
   query,
   where,
   getDocs,
+  updateDoc,
   doc,
   onSnapshot,
 } from "firebase/firestore";
@@ -12,12 +13,13 @@ import { onAuthStateChanged } from "firebase/auth";
 import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
 import moment from "moment";
-import { useLocation } from 'react-router-dom';
-import Header from '../components/header'
+import { useLocation } from "react-router-dom";
+import Header from "../components/header";
+import Heart from "react-heart"
 
 const otherProfile = () => {
-    const { state } = useLocation();
-    console.log(state);
+  const { state } = useLocation();
+  console.log(state);
 
   const [userlist, setUserlist] = useState([]);
   const [currentUserId, setCurrentUserId] = useState("");
@@ -50,10 +52,7 @@ const otherProfile = () => {
   }, []);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "Posts"),
-      where("userId", "==", state.uid)
-    );
+    const q = query(collection(db, "Posts"), where("userId", "==", state.uid));
 
     const messageUnsubscribe = onSnapshot(q, (docSnap) => {
       const list = [];
@@ -67,7 +66,7 @@ const otherProfile = () => {
     return () => {
       messageUnsubscribe();
     };
-  }, [currentUserId]);
+  }, [state.uid]);
 
   const getUsers = async () => {
     const list = [];
@@ -77,11 +76,29 @@ const otherProfile = () => {
     });
     setUserlist(list);
   };
-    
+
+  const toggleLike = async (postId, currentLikes) => {
+    if (!currentUser) return;
+
+    const postRef = doc(db, "Posts", postId);
+    const isLiked = currentLikes.includes(currentUser?.name);
+
+    const updatedLikes = isLiked
+      ? currentLikes.filter((name) => name !== currentUser?.name)
+      : [...currentLikes, currentUser?.name];
+
+    try {
+      await updateDoc(postRef, { likes: updatedLikes });
+      setmodelBody((prev) => ({ ...prev, likes: updatedLikes }));
+    } catch (error) {
+      console.error("Error updating likes:", error);
+    }
+  }
+
   return (
     <>
-    <Header />
-    <div className="pt-24 flex flex-col justify-center items-center">
+      <Header />
+      <div className="pt-24 flex flex-col justify-center items-center">
         <div className="flex justify-center items-center gap-14">
           <img
             src={
@@ -97,9 +114,7 @@ const otherProfile = () => {
           <div>
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-5">
-                <h2 className="text-[28px] font-semibold">
-                  {state?.name}
-                </h2>
+                <h2 className="text-[28px] font-semibold">{state?.name}</h2>
                 <p className="text-gray-600">{state?.email}</p>
               </div>
               <div className="flex items-center gap-6">
@@ -147,9 +162,7 @@ const otherProfile = () => {
               </div>
               <div>
                 <h1 className="font-semibold text-[18px]">
-                  {state?.userName !== ""
-                    ? state?.userName
-                    : state?.name}
+                  {state?.userName !== "" ? state?.userName : state?.name}
                 </h1>
                 <h1 className="w-72 tracking-tighter leading-[21px]">
                   {state?.bio !== "" ? state?.bio : ""}
@@ -245,13 +258,23 @@ const otherProfile = () => {
                                 src={modelBody.imageURL}
                                 className="w-full h-52"
                               />
-                              <h1 className="pt-2">{modelBody.likes.length} likes</h1>
-                              <h1
-                                className="text-xl font-bold pt-2"
-                              >{modelBody.title}</h1>
-                              <h1
-                                className=""
-                              >{modelBody.description}</h1>
+                              <div style={{ width: "25px" }} className='mt-2'>
+                                <Heart
+                                  isActive={modelBody.likes.includes(
+                                    currentUser?.name
+                                  )}
+                                  onClick={() =>
+                                    toggleLike(modelBody.id, modelBody.likes)
+                                  }
+                                />
+                              </div>
+                              <h1>
+                                {modelBody.likes.length} likes
+                              </h1>
+                              <h1 className="text-xl font-bold pt-2">
+                                {modelBody.title}
+                              </h1>
+                              <h1 className="">{modelBody.description}</h1>
                             </div>
                           </div>
                         </div>
@@ -270,7 +293,7 @@ const otherProfile = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
 export default otherProfile;

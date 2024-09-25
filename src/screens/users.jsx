@@ -110,9 +110,6 @@ const Users = () => {
     <>
       <Header />
       <div className="pt-32 pb-20 bg-blue-400 h-auto flex flex-wrap gap-5 justify-center items-center">
-      <div className="pt-20">
-        <input type="text" placeholder="Search user by name" />
-      </div>
         {userlist
           .filter((user) => user.email !== currentUserEmail)
           .map((user, index) => (

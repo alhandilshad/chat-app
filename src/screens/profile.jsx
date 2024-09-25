@@ -18,6 +18,8 @@ import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import moment from "moment";
+import { IoMdSettings } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [userlist, setUserlist] = useState([]);
@@ -36,6 +38,8 @@ const Profile = () => {
   const [editModal, seteditModal] = useState(false);
   const [model, setmodel] = useState(false);
   const [modelBody, setmodelBody] = useState();
+
+  const navigate = useNavigate();
 
   const fileInputRef = useRef(null);
 
@@ -106,7 +110,7 @@ const Profile = () => {
       posterName: currentUser.name,
       posterUserName: currentUser.userName,
       posterGender: currentUser.gender,
-      posterProfile: currentUser.profileImg,
+      posterProfile: currentUser.profileImg ? currentUser.profileImg : "",
       userId: currentUserId,
       likes: [],
       timestamp: Date.now(),
@@ -151,7 +155,7 @@ const Profile = () => {
                 : womenImage
             }
             alt="Profile"
-            className="w-40 h-40 rounded-full border"
+            className="w-44 h-44 rounded-full border"
           />
           <div>
             <div className="flex flex-col gap-4">
@@ -165,6 +169,15 @@ const Profile = () => {
                   className="px-4 py-1 bg-gray-300 rounded-md hover:bg-gray-500 hover:text-white duration-300"
                 >
                   Edit Profile
+                </button>
+                <button
+                  className="px-4 py-1 bg-gray-300 rounded-lg hover:bg-gray-500 hover:text-white duration-300"
+                  onClick={() => {
+                    auth.signOut();
+                    navigate("/login");
+                  }}
+                >
+                  Logout
                 </button>
                 {editModal ? (
                   <>
@@ -508,7 +521,9 @@ const Profile = () => {
                                 src={modelBody.imageURL}
                                 className="w-full h-52"
                               />
-                              <h1 className="pt-2">{modelBody.likes.length} likes</h1>
+                              <h1 className="pt-2">
+                                {modelBody.likes.length} likes
+                              </h1>
                               <input
                                 type="text"
                                 className="w-full text-xl font-bold border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none mt-2"
@@ -549,7 +564,7 @@ const Profile = () => {
                                     description: modelBody.description,
                                   });
                                   console.log("post updated successfully");
-  
+
                                   setmodel(false);
                                 }}
                                 className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600 duration-300"
