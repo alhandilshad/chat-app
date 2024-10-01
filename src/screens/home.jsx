@@ -70,7 +70,7 @@ const home = () => {
   return (
     <>
     <Header />
-    <div className='pt-20 pb-20 flex flex-col justify-center items-center gap-14 bg-gray-100'>
+    <div className='pt-20 pb-20 flex flex-col justify-center items-center gap-14'>
       {posts.map((post, index) => (
         <div key={index} className='flex flex-col gap-3 w-[35%]'>
           <div className='flex items-center justify-between'>

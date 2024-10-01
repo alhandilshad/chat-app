@@ -334,7 +334,7 @@ const Profile = () => {
                     : currentUser?.name}
                 </h1>
                 <h1 className="w-72 tracking-tighter leading-[21px]">
-                  {currentUser?.bio !== "" ? currentUser?.bio : ""}
+                  {currentUser?.bio !== "" ? currentUser?.bio : currentUser?.gender === 'Male' ? 'I am a boy' : 'I am a girl'}
                 </h1>
               </div>
             </div>

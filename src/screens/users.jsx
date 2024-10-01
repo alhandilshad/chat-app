@@ -54,69 +54,17 @@ const Users = () => {
     return unsubscribe;
   };
 
-  const handleFollow = async (followedUserName) => {
-    if (!currentUserEmail) {
-      console.log("No authenticated user found.");
-      return;
-    }
-
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        console.error("No authenticated user found.");
-        return;
-      }
-
-      const currentUserDocRef = doc(db, "users", currentUser.uid);
-      const currentUserSnap = await getDoc(currentUserDocRef);
-      if (!currentUserSnap.exists()) {
-        console.error(`No document found for user: ${currentUser.uid}`);
-        return;
-      }
-
-      const currentUserData = currentUserSnap.data();
-
-      const followedUser = userlist.find(
-        (user) => user.name === followedUserName
-      );
-      if (!followedUser) {
-        console.error(`No user found with the name: ${followedUserName}`);
-        return;
-      }
-
-      if (currentUserData.following.includes(followedUserName)) {
-        console.log(`Already following ${followedUserName}`);
-        return;
-      }
-
-      await updateDoc(currentUserDocRef, {
-        following: arrayUnion(followedUserName),
-      });
-
-      const followedUserDocRef = doc(db, "users", followedUser.uid);
-      await updateDoc(followedUserDocRef, {
-        followers: arrayUnion(currentUserData.name),
-      });
-
-      console.log(`${currentUserData.name} followed ${followedUserName}`);
-
-      getCurrentUserData(currentUser.uid);
-    } catch (error) {
-      console.error("Error following user:", error);
-    }
-  };
-
   return (
     <>
       <Header />
-      <div className="pt-32 pb-20 bg-blue-400 h-auto flex flex-wrap gap-5 justify-center items-center">
+      <div className="pt-32 pb-20 flex flex-wrap gap-5 justify-center items-center">
         {userlist
           .filter((user) => user.email !== currentUserEmail)
           .map((user, index) => (
             <>
               <div
                 key={index}
-                className="bg-white w-[17%] h-[37vh] shadow-md rounded-lg p-5 cursor-pointer"
+                className="bg-white w-[17%] h-auto shadow-md border border-gray-300 shadow-gray-400 rounded-lg p-5 cursor-pointer"
                 onClick={() => navigate('/otherProfile', {state: user})}
               >
                 <img
@@ -130,28 +78,6 @@ const Users = () => {
                 <h2 className="font-semibold text-gray-600 text-center">
                   {user.userName !== '' ? user.userName : user.name}
                 </h2>
-                {currentUserData &&
-                currentUserData.following.includes(user.name) ? (
-                  <button
-                    className="block w-full bg-gray-500 text-white font-semibold py-2 px-4 rounded mt-5"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      navigate('/chat', {state:user})
-                    }}
-                  >
-                    Message
-                  </button>
-                ) : (
-                  <button
-                    className="block w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded mt-5 hover:bg-blue-600"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleFollow(user.name)
-                    }}
-                  >
-                    Follow
-                  </button>
-                )}
               </div>
             </>
           ))}

@@ -4,7 +4,6 @@ import {
   query,
   where,
   getDocs,
-  getDoc,
   updateDoc,
   doc,
   onSnapshot,
@@ -14,87 +13,149 @@ import { onAuthStateChanged } from "firebase/auth";
 import menImage from "../assets/download (2).jpg";
 import womenImage from "../assets/download.png";
 import moment from "moment";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/header";
-import Heart from "react-heart"
+import Heart from "react-heart";
 
-const otherProfile = () => {
+const OtherProfile = () => {
   const { state } = useLocation();
-  console.log(state);
 
   const [userlist, setUserlist] = useState([]);
   const [currentUserId, setCurrentUserId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [modalList, setModalList] = useState([]);
-  const [currentUser, setcurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [model, setmodel] = useState(false);
-  const [modelBody, setmodelBody] = useState();
+  const [model, setModel] = useState(false);
+  const [modelBody, setModelBody] = useState();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [otherProfileUser, setOtherProfileUser] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUserId(user.uid);
-
         const userRef = doc(db, "users", user.uid);
-        const unsub = onSnapshot(userRef, (docSnapshot) => {
+        onSnapshot(userRef, (docSnapshot) => {
           if (docSnapshot.exists()) {
             const userData = docSnapshot.data();
-            setcurrentUser(userData);
+            setCurrentUser(userData);
+            setIsFollowing(state?.followers?.includes(userData.name));
           }
         });
-
-        return () => unsub();
       }
     });
+
     getUsers();
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     const q = query(collection(db, "Posts"), where("userId", "==", state.uid));
-
-    const messageUnsubscribe = onSnapshot(q, (docSnap) => {
-      const list = [];
-      docSnap.forEach((doc) => {
-        list.push({ id: doc.id, ...doc.data() });
-      });
-      const sortList = list.sort((a, b) => b.timestamp - a.timestamp);
-      setPosts(sortList);
+    const unsubscribe = onSnapshot(q, (docSnap) => {
+      const sortedPosts = docSnap.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => b.timestamp - a.timestamp);
+      setPosts(sortedPosts);
     });
 
-    return () => {
-      messageUnsubscribe();
-    };
+    return () => unsubscribe();
+  }, [state.uid]);
+
+  useEffect(() => {
+    const q = query(collection(db, "users"), where("uid", "==", state.uid));
+    const unsubscribe = onSnapshot(q, (docSnap) => {
+      const user = docSnap.docs[0]?.data();
+      setOtherProfileUser(user);
+    });
+
+    return () => unsubscribe();
   }, [state.uid]);
 
   const getUsers = async () => {
-    const list = [];
     const dbSnap = await getDocs(collection(db, "users"));
-    dbSnap.forEach((doc) => {
-      list.push(doc.data());
-    });
-    setUserlist(list);
+    setUserlist(dbSnap.docs.map((doc) => doc.data()));
   };
 
   const toggleLike = async (postId, currentLikes) => {
     if (!currentUser) return;
-
     const postRef = doc(db, "Posts", postId);
     const isLiked = currentLikes.includes(currentUser?.name);
-
     const updatedLikes = isLiked
       ? currentLikes.filter((name) => name !== currentUser?.name)
       : [...currentLikes, currentUser?.name];
 
     try {
       await updateDoc(postRef, { likes: updatedLikes });
-      setmodelBody((prev) => ({ ...prev, likes: updatedLikes }));
+      setModelBody((prev) => ({ ...prev, likes: updatedLikes }));
     } catch (error) {
       console.error("Error updating likes:", error);
     }
-  }
+  };
+
+  const handleFollow = async () => {
+    if (!currentUser || !otherProfileUser) return;
+  
+    try {
+      const otherUserRef = doc(db, "users", state.uid); // Alhan's user document
+      const currentUserRef = doc(db, "users", currentUserId); // Farhan's user document
+  
+      // Ensure the followers array exists before updating for Alhan
+      const updatedFollowers = otherProfileUser?.followers
+        ? [...otherProfileUser.followers, currentUser.name]
+        : [currentUser.name];
+  
+      // Ensure the following array exists before updating for Farhan
+      const updatedFollowing = currentUser?.following
+        ? [...currentUser.following, otherProfileUser.name]
+        : [otherProfileUser.name];
+  
+      // Update both users in Firebase
+      await updateDoc(otherUserRef, { followers: updatedFollowers }); // Update Alhan's followers
+      await updateDoc(currentUserRef, { following: updatedFollowing }); // Update Farhan's following
+  
+      // Update the local state for both users
+      setOtherProfileUser((prev) => ({ ...prev, followers: updatedFollowers }));
+      setCurrentUser((prev) => ({ ...prev, following: updatedFollowing }));
+      setIsFollowing(true);
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
+  
+  const handleUnfollow = async () => {
+    if (!currentUser || !otherProfileUser?.followers) return;
+  
+    try {
+      const otherUserRef = doc(db, "users", state.uid); // Alhan's user document
+      const currentUserRef = doc(db, "users", currentUserId); // Farhan's user document
+  
+      // Remove the current user (Farhan) from Alhan's followers
+      const updatedFollowers = otherProfileUser.followers.filter(
+        (follower) => follower !== currentUser.name
+      );
+  
+      // Remove Alhan from Farhan's following list
+      const updatedFollowing = currentUser?.following?.filter(
+        (following) => following !== otherProfileUser.name
+      );
+  
+      // Update both users in Firebase
+      await updateDoc(otherUserRef, { followers: updatedFollowers }); // Update Alhan's followers
+      await updateDoc(currentUserRef, { following: updatedFollowing }); // Update Farhan's following
+  
+      // Update the local state for both users
+      setOtherProfileUser((prev) => ({ ...prev, followers: updatedFollowers }));
+      setCurrentUser((prev) => ({ ...prev, following: updatedFollowing }));
+      setIsFollowing(false);
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
+  };   
+  
 
   return (
     <>
@@ -122,14 +183,14 @@ const otherProfile = () => {
                 <h1 className="text-lg font-medium">{posts.length} Posts</h1>
                 <div className="flex items-center gap-1">
                   <p className="text-lg font-medium">
-                    {state?.followers?.length}
+                    {otherProfileUser?.followers?.length}
                   </p>
                   <button
                     type="button"
                     className="text-lg font-medium"
                     onClick={() => {
                       setModalType("followers");
-                      const followersList = state?.followers?.map(
+                      const followersList = otherProfileUser?.followers?.map(
                         (followerName) =>
                           userlist.find((u) => u.name === followerName)
                       );
@@ -142,14 +203,14 @@ const otherProfile = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <p className="text-lg font-medium">
-                    {state?.following?.length}
+                    {otherProfileUser?.following?.length}
                   </p>
                   <button
                     type="button"
                     className="text-lg font-medium"
                     onClick={() => {
                       setModalType("following");
-                      const followingList = state?.following?.map(
+                      const followingList = otherProfileUser?.following?.map(
                         (followingName) =>
                           userlist.find((u) => u.name === followingName)
                       );
@@ -161,13 +222,35 @@ const otherProfile = () => {
                   </button>
                 </div>
               </div>
-              <div></div>
+              {/* Follow/Unfollow Buttons */}
+              <div>
+                {!isFollowing ? (
+                  <button
+                    className="py-1 px-4 bg-blue-500 text-white"
+                    onClick={handleFollow}
+                  >
+                    Follow
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      className="py-1 px-4 bg-red-400 hover:bg-red-500 duration-300 text-white"
+                      onClick={handleUnfollow}
+                    >
+                      Unfollow
+                    </button>
+                    <button className="py-1 px-4 bg-gray-400 hover:bg-gray-500 duration-300 ml-2 text-white" onClick={() => navigate('/chat', {state:otherProfileUser})}>
+                      Message
+                    </button>
+                  </>
+                )}
+              </div>
               <div>
                 <h1 className="font-semibold text-[18px]">
-                  {state?.userName !== "" ? state?.userName : state?.name}
+                  {otherProfileUser?.userName !== "" ? otherProfileUser?.userName : state?.name}
                 </h1>
                 <h1 className="w-72 tracking-tighter leading-[21px]">
-                  {state?.bio !== "" ? state?.bio : ""}
+                  {otherProfileUser?.bio !== "" ? otherProfileUser?.bio : otherProfileUser?.gender === 'Male' ? 'I am a boy' : 'I am a girl'}
                 </h1>
               </div>
             </div>
@@ -227,8 +310,8 @@ const otherProfile = () => {
                   key={index}
                   className="shadow-md shadow-gray-500 w-[33.3%] border border-gray-300 cursor-pointer hover:shadow-lg hover:shadow-gray-500 duration-300"
                   onClick={() => {
-                    setmodel(true);
-                    setmodelBody(post);
+                    setModel(true);
+                    setModelBody(post);
                   }}
                 >
                   <img src={post.imageURL} className="w-full h-[140px]"></img>
@@ -243,7 +326,7 @@ const otherProfile = () => {
                             <h1 className="text-3xl font-bold">Post</h1>
                             <button
                               className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                              onClick={() => setmodel(false)}
+                              onClick={() => setModel(false)}
                             >
                               x
                             </button>
@@ -298,4 +381,4 @@ const otherProfile = () => {
   );
 };
 
-export default otherProfile;
+export default OtherProfile;

@@ -61,10 +61,10 @@ const messages = () => {
   return (
     <>
       <Header />
-      <div className="h-auto pb-20 w-full bg-gray-100">
-        <div className="flex flex-col justify-center items-center gap-5 pt-32">
+      <div className="h-auto pb-20 w-full">
+        <div className="flex flex-col justify-center items-center pt-28">
         {userlist.filter((user) => user.email !== currentUserEmail).filter((user) => chatUser.some((chat) => (chat.receiverUid === user.uid && chat.senderUid === currentUserUid) || (chat.senderUid === user.uid && chat.receiverUid === currentUserUid))).map((title, index) => (
-            <div key={index} onClick={() => navigate('/chat', {state:title})} className="flex items-center justify-between px-8 border-2 border-blue-400 rounded-md py-2 bg-blue-100 w-[80%] cursor-pointer">
+            <div key={index} onClick={() => navigate('/chat', {state:title})} className="flex items-center justify-between px-2 border-b-2 border-blue-400 py-2 w-[80%] cursor-pointer">
               <div className="flex items-center gap-3">
               <img
                 src={title.profileImg ? title.profileImg : title.gender === 'Male' ? menImage : womenImage}
