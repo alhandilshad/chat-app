@@ -2,30 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
-  const [shadow, setShadow] = useState(false);
-  const location = useLocation(); // Get current path
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setShadow(true);
-      } else {
-        setShadow(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  // Function to check if the current path matches the link path
+  const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
   return (
     <header
-      className={`fixed h-16 w-full px-20 flex justify-between items-center rounded-bl-3xl rounded-br-3xl transition-all bg-white duration-300 shadow-md`}
+      className={`fixed h-16 w-full px-20 flex justify-between items-center rounded-bl-3xl rounded-br-3xl transition-all bg-white duration-300 shadow shadow-blue-300`}
     >
       <h1
         className="text-[26px] font-bold cursor-pointer hover:scale-105 transition-transform"
@@ -41,7 +23,7 @@ const Header = () => {
         <Link 
           to='/home' 
           className={`text-gray-800 px-5 py-[6px] rounded-3xl transition-all duration-500 ${
-            isActive('/home' || '/Home') ? 'bg-blue-400 text-white' : 'hover:bg-blue-400 hover:text-white'
+            isActive('/home' || '/Home') ? 'bg-custom-gradient text-white' : 'hover:bg-custom-gradient hover:text-white'
           }`}
         >
           HOME
@@ -49,7 +31,7 @@ const Header = () => {
         <Link 
           to='/messages' 
           className={`text-gray-800 px-5 py-[6px] rounded-3xl transition-all duration-500 ${
-            isActive('/messages') ? 'bg-blue-400 text-white' : 'hover:bg-blue-400 hover:text-white'
+            isActive('/messages') ? 'bg-custom-gradient text-white' : 'hover:bg-custom-gradient hover:text-white'
           }`}
         >
           MESSAGES
@@ -57,7 +39,7 @@ const Header = () => {
         <Link 
           to='/users' 
           className={`text-gray-800 px-5 py-[6px] rounded-3xl transition-all duration-500 ${
-            isActive('/users') ? 'bg-blue-400 text-white' : 'hover:bg-blue-400 hover:text-white'
+            isActive('/users') ? 'text-white bg-custom-gradient' : 'hover:text-white hover:bg-custom-gradient'
           }`}
         >
           USERS
@@ -66,7 +48,7 @@ const Header = () => {
       <div>
         <Link 
           className={`text-gray-800 px-5 py-[6px] rounded-3xl transition-all duration-500 ${
-            isActive('/profile') ? 'bg-blue-400 text-white' : 'hover:bg-blue-400 hover:text-white'
+            isActive('/profile') ? 'bg-custom-gradient text-white' : 'hover:bg-custom-gradient hover:text-white'
           }`}
           to='/profile'
         >

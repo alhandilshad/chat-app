@@ -10,6 +10,10 @@ const login = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
     signInWithEmailAndPassword(auth, email, password)
       .then((response) => {
         navigate('/home');
@@ -18,14 +22,27 @@ const login = () => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.error(errorCode, errorMessage);
+        if(errorCode === 'auth/invalid-credential'){
+          alert("Invalid email or password. Please try again.");
+        }
         // ..
       });
   }
 
   return (
-    <div className="h-[100vh] w-full bg-gray-50 flex justify-center items-center">
-        <div className="w-[50%] h-[80vh] bg-white border border-gray-300 rounded-3xl shadow-lg flex flex-col justify-center items-center gap-8">
-          <h1 className="text-3xl font-bold text-gray-800">Login</h1>
+    <div className="h-[100vh] w-full bg-white flex flex-col justify-center items-center gap-8">
+      <h1
+        className="text-3xl font-bold cursor-pointer hover:scale-105 transition-transform"
+        style={{
+          backgroundImage: 'linear-gradient(to right, #3b82f6, #9333ea)',
+          WebkitBackgroundClip: 'text',
+          color: 'transparent',
+        }}
+      >
+        Beep-One
+      </h1>
+        <div className="w-[50%] h-[70vh] bg-white border border-blue-200 rounded-3xl shadow-md shadow-blue-400 flex flex-col justify-center items-center gap-8">
+          <h1 className="text-2xl font-bold text-gray-800">Login</h1>
           <form className="flex flex-col gap-8 w-[80%]">
             <div>
               <label
@@ -39,7 +56,7 @@ const login = () => {
                 type="email"
                 name="email"
                 id="email"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="border border-blue-500 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 placeholder="name@company.com"
                 required=""
                 onChange={(e) => setEmail(e.target.value)}
@@ -58,7 +75,7 @@ const login = () => {
                 name="password"
                 id="password"
                 placeholder="••••••••"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="border border-blue-500 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 required=""
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -66,7 +83,7 @@ const login = () => {
             <button
               type="button"
               onClick={handleLogin}
-              className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+              className="w-full text-white bg-custom-gradient hover:bg-whitish hover:text-[#9333ea] border hover:border-blue-600 duration-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
             >
               Login
             </button>

@@ -163,12 +163,12 @@ const Profile = () => {
                 <p className="text-gray-600">{currentUser?.email}</p>
                 <button
                   onClick={() => seteditModal(true)}
-                  className="px-4 py-1 bg-gray-300 rounded-md hover:bg-gray-500 hover:text-white duration-300"
+                  className="px-4 py-1 text-white bg-custom-gradient rounded-md hover:bg-whitish hover:text-[#9333ea] border hover:border-blue-500 duration-300"
                 >
                   Edit Profile
                 </button>
                 <button
-                  className="px-4 py-1 bg-gray-300 rounded-lg hover:bg-gray-500 hover:text-white duration-300"
+                  className="px-4 py-1 text-white bg-custom-gradient rounded-lg hover:bg-whitish hover:text-[#9333ea] border hover:border-blue-500 duration-300"
                   onClick={() => {
                     auth.signOut();
                     navigate("/login");
@@ -242,7 +242,7 @@ const Profile = () => {
                                       userName: e.target.value,
                                     })
                                   }
-                                  className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none mt-2"
+                                  className="w-full border border-blue-500 rounded-md p-2 focus:ring-1 focus:ring-blue-500 focus:outline-none mt-2"
                                 />
                               </div>
                               <div>
@@ -258,7 +258,7 @@ const Profile = () => {
                                       bio: e.target.value,
                                     })
                                   }
-                                  className="w-full border border-gray-300 rounded-md p-2 mt-2 h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                  className="w-full border border-blue-500 rounded-md p-2 mt-2 h-24 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                                 />
                               </div>
                             </div>
@@ -375,7 +375,7 @@ const Profile = () => {
                             <input
                               type="text"
                               id="title"
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                              className="w-full px-3 py-2 border border-blue-500 rounded-lg focus:ring-1 focus:ring-blue-500 focus:outline-none"
                               placeholder="Enter post title"
                               value={title}
                               onChange={(e) => setTitle(e.target.value)}
@@ -390,7 +390,7 @@ const Profile = () => {
                             </label>
                             <textarea
                               id="description"
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                              className="w-full px-3 py-2 border border-blue-500 rounded-lg focus:ring-1 focus:ring-blue-500 focus:outline-none"
                               placeholder="Enter post description"
                               value={description}
                               onChange={(e) => setDescription(e.target.value)}
@@ -406,7 +406,7 @@ const Profile = () => {
                             <input
                               type="text"
                               id="imageURL"
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                              className="w-full px-3 py-2 border border-blue-500 rounded-lg focus:ring-1 focus:ring-blue-500 focus:outline-none"
                               placeholder="Enter image URL"
                               value={imageURL}
                               onChange={(e) => setImageURL(e.target.value)}

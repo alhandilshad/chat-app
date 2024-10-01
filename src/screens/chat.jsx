@@ -102,7 +102,7 @@ const Chat = () => {
 
   return (
     <>
-      <div className="fixed w-full flex gap-3 items-center justify-between px-6 h-20 bg-blue-300">
+      <div className="fixed w-full flex gap-3 text-white items-center justify-between px-6 h-20 bg-custom-gradient">
         <Link to={"/messages"}>
           <IoArrowBackSharp className="text-4xl" />
         </Link>
@@ -122,10 +122,10 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className={`pt-24 pb-20 px-10 h-[calc(100vh-100px)] overflow-y-auto bg-chatBack bg-cover bg-center bg-no-repeat bg-fixed`} ref={chatContainerRef}>
+      <div className={`pt-24 pb-20 px-10 h-[calc(100vh-100px)] overflow-y-auto bg-blue-100`} ref={chatContainerRef}>
         {chatList.map((item, index) => (
           <div key={index} className={`flex items-center gap-2 w-full ${item.senderUid == currentUserId ? 'justify-end' : 'justify-start'}`}>
-            <button type="button" onClick={() => deleteMessage(item)} className={`${item.senderUid == currentUserId ? 'block text-gray-200 text-xl' : 'hidden'}`}><MdDelete /></button>
+            <button type="button" onClick={() => deleteMessage(item)} className={`${item.senderUid == currentUserId ? 'block text-gray-600 text-xl' : 'hidden'}`}><MdDelete /></button>
             <div className={`${item.senderUid == currentUserId ? 'bg-blue-500 text-white mt-4 py-4 px-7' : 'bg-white mt-4 py-4 px-7'}`}>
               <h1>{item.message}</h1>
               <div className="flex justify-between items-center gap-1">
@@ -140,7 +140,7 @@ const Chat = () => {
       <div className="fixed bottom-0 left-0 w-full px-6 py-4 bg-white flex items-center">
         <input
           type="text"
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none"
+          className="w-full p-3 rounded-lg border border-blue-500 focus:outline-none"
           placeholder="Type your message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}

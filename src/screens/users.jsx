@@ -64,7 +64,7 @@ const Users = () => {
             <>
               <div
                 key={index}
-                className="bg-white w-[17%] h-auto shadow-md border border-gray-300 shadow-gray-400 rounded-lg p-5 cursor-pointer"
+                className="bg-white w-[17%] h-auto shadow-md border border-blue-300 shadow-blue-400 hover:shadow-blue-600 duration-300 rounded-lg p-5 cursor-pointer"
                 onClick={() => navigate('/otherProfile', {state: user})}
               >
                 <img

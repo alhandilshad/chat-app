@@ -31,6 +31,7 @@ const OtherProfile = () => {
   const [modelBody, setModelBody] = useState();
   const [isFollowing, setIsFollowing] = useState(false);
   const [otherProfileUser, setOtherProfileUser] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -98,64 +99,58 @@ const OtherProfile = () => {
 
   const handleFollow = async () => {
     if (!currentUser || !otherProfileUser) return;
-  
+    setLoading(true);
+
     try {
-      const otherUserRef = doc(db, "users", state.uid); // Alhan's user document
-      const currentUserRef = doc(db, "users", currentUserId); // Farhan's user document
-  
-      // Ensure the followers array exists before updating for Alhan
+      const otherUserRef = doc(db, "users", state.uid);
+      const currentUserRef = doc(db, "users", currentUserId);
+
       const updatedFollowers = otherProfileUser?.followers
         ? [...otherProfileUser.followers, currentUser.name]
         : [currentUser.name];
-  
-      // Ensure the following array exists before updating for Farhan
+
       const updatedFollowing = currentUser?.following
         ? [...currentUser.following, otherProfileUser.name]
         : [otherProfileUser.name];
-  
-      // Update both users in Firebase
-      await updateDoc(otherUserRef, { followers: updatedFollowers }); // Update Alhan's followers
-      await updateDoc(currentUserRef, { following: updatedFollowing }); // Update Farhan's following
-  
-      // Update the local state for both users
+
+      await updateDoc(otherUserRef, { followers: updatedFollowers });
+      await updateDoc(currentUserRef, { following: updatedFollowing });
+
       setOtherProfileUser((prev) => ({ ...prev, followers: updatedFollowers }));
       setCurrentUser((prev) => ({ ...prev, following: updatedFollowing }));
       setIsFollowing(true);
     } catch (error) {
       console.error("Error following user:", error);
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   const handleUnfollow = async () => {
     if (!currentUser || !otherProfileUser?.followers) return;
-  
+
     try {
-      const otherUserRef = doc(db, "users", state.uid); // Alhan's user document
-      const currentUserRef = doc(db, "users", currentUserId); // Farhan's user document
-  
-      // Remove the current user (Farhan) from Alhan's followers
+      const otherUserRef = doc(db, "users", state.uid);
+      const currentUserRef = doc(db, "users", currentUserId);
+
       const updatedFollowers = otherProfileUser.followers.filter(
         (follower) => follower !== currentUser.name
       );
-  
-      // Remove Alhan from Farhan's following list
+
       const updatedFollowing = currentUser?.following?.filter(
         (following) => following !== otherProfileUser.name
       );
-  
-      // Update both users in Firebase
-      await updateDoc(otherUserRef, { followers: updatedFollowers }); // Update Alhan's followers
-      await updateDoc(currentUserRef, { following: updatedFollowing }); // Update Farhan's following
-  
-      // Update the local state for both users
+
+      await updateDoc(otherUserRef, { followers: updatedFollowers });
+      await updateDoc(currentUserRef, { following: updatedFollowing });
+
       setOtherProfileUser((prev) => ({ ...prev, followers: updatedFollowers }));
       setCurrentUser((prev) => ({ ...prev, following: updatedFollowing }));
       setIsFollowing(false);
     } catch (error) {
       console.error("Error unfollowing user:", error);
     }
-  };   
-  
+  };
 
   return (
     <>
@@ -226,10 +221,13 @@ const OtherProfile = () => {
               <div>
                 {!isFollowing ? (
                   <button
-                    className="py-1 px-4 bg-blue-500 text-white"
+                    className="py-1 px-4 bg-blue-500 text-white hover:bg-blue-600 duration-300"
                     onClick={handleFollow}
+                    disabled={loading}
                   >
-                    Follow
+                    <span className="mr-2">
+                      {loading ? "Following..." : "Follow"}
+                    </span>
                   </button>
                 ) : (
                   <>
@@ -239,7 +237,12 @@ const OtherProfile = () => {
                     >
                       Unfollow
                     </button>
-                    <button className="py-1 px-4 bg-gray-400 hover:bg-gray-500 duration-300 ml-2 text-white" onClick={() => navigate('/chat', {state:otherProfileUser})}>
+                    <button
+                      className="py-1 px-4 bg-gray-400 hover:bg-gray-500 duration-300 ml-2 text-white"
+                      onClick={() =>
+                        navigate("/chat", { state: otherProfileUser })
+                      }
+                    >
                       Message
                     </button>
                   </>
@@ -247,10 +250,16 @@ const OtherProfile = () => {
               </div>
               <div>
                 <h1 className="font-semibold text-[18px]">
-                  {otherProfileUser?.userName !== "" ? otherProfileUser?.userName : state?.name}
+                  {otherProfileUser?.userName !== ""
+                    ? otherProfileUser?.userName
+                    : state?.name}
                 </h1>
                 <h1 className="w-72 tracking-tighter leading-[21px]">
-                  {otherProfileUser?.bio !== "" ? otherProfileUser?.bio : otherProfileUser?.gender === 'Male' ? 'I am a boy' : 'I am a girl'}
+                  {otherProfileUser?.bio !== ""
+                    ? otherProfileUser?.bio
+                    : otherProfileUser?.gender === "Male"
+                    ? "I am a boy"
+                    : "I am a girl"}
                 </h1>
               </div>
             </div>
@@ -343,7 +352,7 @@ const OtherProfile = () => {
                                 src={modelBody.imageURL}
                                 className="w-full h-52"
                               />
-                              <div style={{ width: "25px" }} className='mt-2'>
+                              <div style={{ width: "25px" }} className="mt-2">
                                 <Heart
                                   isActive={modelBody.likes.includes(
                                     currentUser?.name
@@ -353,9 +362,7 @@ const OtherProfile = () => {
                                   }
                                 />
                               </div>
-                              <h1>
-                                {modelBody.likes.length} likes
-                              </h1>
+                              <h1>{modelBody.likes.length} likes</h1>
                               <h1 className="text-xl font-bold pt-2">
                                 {modelBody.title}
                               </h1>
